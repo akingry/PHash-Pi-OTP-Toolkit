@@ -6,23 +6,21 @@
 
 ## Overview
 
-`PHash-Pi-OTP-Toolkit` is a self-contained HTML/JavaScript application that implements a symmetric encryption scheme reminiscent of a one-time pad. It uniquely generates a keystream by combining three user-influenced factors:
+`PHash-Pi-OTP-Toolkit` is a self-contained HTML/JavaScript application that implements a symmetric one-time padencryption scheme. It generates a keystream by combining three user-influenced factors:
 
-1.  A **perceptual hash (pHash)** derived from a user-uploaded image.
+1.  A **perceptual hash (pHash)** derived from a user-uploaded image (can be resized or compressed within reason when decoding).
 2.  A **secret passphrase** provided by the user.
-3.  A deterministic selection of digits from an **embedded sequence of the mathematical constant Pi**.
+3.  A deterministic selection of digits from an **embedded sequence of the constant Pi**.
 
 The tool allows for both encryption of plaintext (UTF-8) to Base64 ciphertext and decryption of Base64 ciphertext back to plaintext. It operates entirely on the client-side, requiring no backend or external libraries beyond what's embedded in the single HTML file.
 
-This project is primarily an exploration of cryptographic principles and unconventional key derivation methods. While it aims for a high degree of pseudo-randomness in its pad generation, it should be understood in the context of experimental cryptography rather than a replacement for standardized, audited encryption algorithms for highly sensitive data.
-
 ## Core Concepts
 
-* **One-Time Pad (OTP) Principle:** The core encryption mechanism is a byte-wise XOR operation between the plaintext/ciphertext and a generated pad. If the pad were truly random and used only once, this would offer perfect secrecy. This tool *simulates* this by generating a pad that is highly dependent on unique inputs.
+* **One-Time Pad (OTP) Principle:** The core encryption mechanism is a byte-wise XOR operation between the plaintext/ciphertext and a generated pad. If the pad were truly random and used only once, this would offer perfect secrecy. This tool approximates this by generating a pad that is highly dependent on unique inputs.
 
-* **Perceptual Hashing (pHash):** Instead of a cryptographic hash of the image file itself (which would change with metadata modifications), a perceptual hash (specifically, an "average hash") is computed. This hash represents the visual features of the image, meaning visually similar images will produce similar (but not necessarily identical) hashes. The pHash provides a source of initial entropy derived from the image content.
+* **Perceptual Hashing (pHash):** Instead of a cryptographic hash of the image file itself (which would change with metadata modifications), a perceptual hash is computed. This hash represents the visual features of the image, meaning visually similar images will produce similar (but not necessarily identical) hashes. The pHash provides a source of initial entropy derived from the image content. This provides the advantage that the image can go through filters of social media, be resized, or compressed and still work when decoding. Cropping, however, can destroy the ability to decode.
 
-* **Pi as a Pseudo-Random Source:** The digits of Pi are often considered a good source of pseudo-random digits. This tool embeds the first 30,000 digits of Pi (after the decimal) and uses a derived offset to select a segment of these digits for pad generation.
+* **Pi as a Pseudo-Random Source:** The digits of Pi are a reasonable source of pseudo-random digits. This tool embeds the first 30,000 digits of Pi (after the decimal) and uses a derived offset to select a segment of these digits for pad generation. But you could use any set of numbers or mathematical constants.
 
 * **Key Derivation Function (KDF) - Custom:** The process of combining the pHash and passphrase to determine the starting offset in the Pi digits acts as a custom Key Derivation Function.
 
@@ -57,7 +55,7 @@ The generation of the OTP pad is the crux of this tool's security model:
         This ensures the offset is always valid for the given message length and the available Pi digits, preventing out-of-bounds reads.
 
 4.  **OTP Pad Generation from Pi Digits:**
-    * The tool uses an embedded string `PI_DIGITS_30K` containing the first 30,000 digits of Pi (after the decimal).
+    * The tool uses an embedded string `PI_DIGITS_30K` containing the first 30,000 digits of Pi (after the decimal). This is arbitrary, but determines the max length of the message that can be encoded.
     * Starting from the calculated `offset`, a segment of Pi digits is extracted. The length of this segment is `messageByteLength * 3` (since 3 Pi digits are used to form each byte of the pad).
     * This segment of Pi digits is processed in 3-digit chunks.
     * Each 3-digit chunk is converted to an integer, and then `modulo 256` is applied to produce a byte value (0-255).
@@ -79,18 +77,16 @@ The generation of the OTP pad is the crux of this tool's security model:
 
 ## Security Considerations & Limitations
 
-* **Client-Side Operation:** All cryptographic operations occur in the user's browser. No data (image, passphrase, plaintext, ciphertext) is transmitted to any server. This enhances privacy but also means the security relies on the integrity of the client's environment.
-* **Importance of Full Pi String:** The tool is designed to use 30,000 embedded Pi digits. If this string is truncated, the effective keyspace for the Pi offset is drastically reduced, severely weakening the security and leading to potential offset collisions.
-* **pHash Properties:** Perceptual hashes are designed for similarity detection, not cryptographic collision resistance. While distinct images will generally produce distinct pHashes, it's theoretically possible for two different images to yield the same pHash or pHashes that, when combined with a passphrase, lead to the same Pi offset for short messages.
-* **Passphrase Strength:** The security heavily relies on the secrecy and complexity of the passphrase. The "folding" mechanism ensures the entire passphrase contributes, but a weak passphrase remains a weak link.
+* **Client-Side Operation:** All cryptographic operations occur in the user's browser. No data (image, passphrase, plaintext, ciphertext) is transmitted to any server.
+* **pHash Properties:** While distinct images will generally produce distinct pHashes, it's theoretically possible for two different images to yield the same pHash or pHashes that, when combined with a passphrase, lead to the same Pi offset for short messages. 
+* **Passphrase Strength:** The "folding" mechanism of the passphrase (see step 2 above) ensures the entire passphrase contributes.
 * **Key Uniqueness (Image + Passphrase):** The combination of the image's pHash and the full passphrase is what makes the derived Pi offset (and thus the OTP pad) unique.
-* **Not a True OTP:** While inspired by OTPs, the pad is deterministically generated. If the same image and passphrase are used to encrypt different messages of the same length that result in the same initial `decimalValue` for the offset calculation (before the message-length dependent modulo), they will use the same keystream segment, violating OTP principles. The message-length dependent modulo in `deriveSeedOffset` mitigates this for many cases but doesn't eliminate all cryptographic weaknesses inherent in a deterministic pad.
 * **Experimental Nature:** This tool is an educational and experimental implementation. For production-level security, use well-vetted, standardized cryptographic libraries and protocols.
 
-## Technical Details
+## Technical Overview
 
 * **Language:** HTML, CSS, JavaScript (ES6+).
-* **Single File:** Designed to run as a single `otp_tool.html` file.
+* **Single File:** Designed to run as a single html file.
 * **pHash Implementation:** Embedded "Average Hash" algorithm.
 * **Pi Source:** Embedded string of the first 30,000 digits of Pi.
 * **Encoding:** UTF-8 for text-to-byte conversion, Base64 for ciphertext representation.
@@ -98,9 +94,9 @@ The generation of the OTP pad is the crux of this tool's security model:
 
 ## How to Use
 
-1.  Open `otp_tool.html` in a modern web browser.
+1.  Open `index.html` in a browser.
 2.  **Upload Image:** Select an image file. Its pHash will be computed automatically. A preview is shown.
-3.  **Enter Passphrase:** Type a secret passphrase. Use the "Show" toggle to verify.
+3.  **Enter Passphrase:** Type a secret passphrase.
 4.  **Encryption:**
     * Enter plaintext in the "Plaintext" textarea.
     * Click "Encrypt".
@@ -111,13 +107,5 @@ The generation of the OTP pad is the crux of this tool's security model:
     * Paste Base64 ciphertext into the "Ciphertext" textarea.
     * Click "Decrypt".
     * The recovered plaintext will appear in the "Plaintext" textarea.
-6.  **Copy Buttons:** Use the "Copy" buttons under each textarea to copy their contents to the clipboard.
-7.  **Log:** The log area on the side provides status updates and error messages.
-
-## Potential Future Enhancements
-
-* Option for different pHash algorithms.
-* Integration of a stronger KDF for combining pHash and passphrase.
-* Allowing a user-specified salt.
 
 ---
