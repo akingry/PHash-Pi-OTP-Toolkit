@@ -3,7 +3,7 @@
 A client-side, single-HTML file tool for one-time pad (OTP) inspired encryption/decryption, deriving its cryptographic pad from a perceptual image hash (pHash), a user-defined passphrase, and an embedded segment of the digits of Pi.
 
 ---
-
+![](one.png)
 ## Overview
 
 `PHash-Pi-OTP-Toolkit` is a self-contained HTML/JavaScript application that implements a symmetric one-time pad encryption scheme. It generates a keystream by combining three user-influenced factors:
