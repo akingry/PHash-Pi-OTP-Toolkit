@@ -3,7 +3,7 @@
 A client-side, single-HTML file tool for one-time pad (OTP) inspired encryption/decryption, deriving its cryptographic pad from a perceptual image hash (pHash), a user-defined passphrase, and an embedded segment of the digits of Pi.
 
 ---
-![](one.png)
+
 ## Overview
 
 `PHash-Pi-OTP-Toolkit` is a self-contained HTML/JavaScript application that implements a symmetric one-time pad encryption scheme. It generates a keystream by combining three user-influenced factors:
@@ -14,6 +14,8 @@ A client-side, single-HTML file tool for one-time pad (OTP) inspired encryption/
 
 The tool allows for both encryption of plaintext (UTF-8) to Base64 ciphertext and decryption of Base64 ciphertext back to plaintext. It operates entirely on the client-side, requiring no backend or external libraries beyond what's embedded in the single HTML file.
 
+![](one.png)
+
 ## Core Concepts
 
 * **One-Time Pad (OTP) Principle:** The core encryption mechanism is a byte-wise XOR operation between the plaintext/ciphertext and a generated pad. If the pad were truly random and used only once, this would offer perfect secrecy. This tool approximates this by generating a pad that is highly dependent on unique inputs.
@@ -23,6 +25,8 @@ The tool allows for both encryption of plaintext (UTF-8) to Base64 ciphertext an
 * **Pi as a Pseudo-Random Source:** The digits of Pi are a reasonable source of pseudo-random digits. This tool embeds the first 30,000 digits of Pi (after the decimal) and uses a derived offset to select a segment of these digits for pad generation. But you could use any set of numbers or mathematical constants.
 
 * **Key Derivation Function (KDF) - Custom:** The process of combining the pHash and passphrase to determine the starting offset in the Pi digits acts as a custom Key Derivation Function.
+
+  ![](two.png)
 
 ## Key Derivation & Pad Generation Process
 
