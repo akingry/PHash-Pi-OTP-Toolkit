@@ -1,4 +1,4 @@
-# PHash-Pi-OTP-Toolkit
+﻿# PHash-Pi-OTP-Toolkit
 
 A client-side, single-HTML file tool for one-time pad (OTP) inspired encryption/decryption, deriving its cryptographic pad from a perceptual image hash (pHash), a user-defined passphrase, and an embedded segment of the digits of Pi.
 
@@ -113,3 +113,7 @@ The generation of the OTP pad is the crux of this tool's security model:
     * The recovered plaintext will appear in the "Plaintext" textarea.
 
 ---
+
+## License
+
+Copyright (c) 2026 Adam Kingry. Licensed under the [MIT License](LICENSE).
